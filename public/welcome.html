@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome - CollegeHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ૧. animated background image setup */
+        .bg-animated {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('images/back.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            animation: backgroundZoom 5s infinite alternate ease-in-out;
+        }
+
+        /* ૨. zoom animation logic */
+        @keyframes backgroundZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        body { 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* circle animation */
+        .bg-circle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            z-index: -1;
+            animation: moveCircles 15s infinite linear;
+        }
+
+        @keyframes moveCircles {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        .welcome-title {
+            font-size: 3.5rem;
+            text-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            margin-bottom: 50px;
+            animation: fadeInDown 1.2s ease-out;
+        }
+
+        .selection-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 50px 40px;
+            width: 340px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .student-card:hover {
+            background: rgba(102, 126, 234, 0.25);
+            transform: translateY(-20px) scale(1.02);
+            border-color: #667eea;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .teacher-card:hover {
+            background: rgba(245, 101, 101, 0.25);
+            transform: translateY(-20px) scale(1.02);
+            border-color: #f56565;
+            box-shadow: 0 20px 40px rgba(245, 101, 101, 0.4);
+        }
+
+        .icon-box {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .selection-card:hover .icon-box {
+            transform: scale(1.3) rotate(-10deg);
+        }
+
+        .btn-custom {
+            border-radius: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 20px;
+            padding: 15px;
+            border: none;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animated"></div>
+
+    <div class="bg-circle" style="width: 120px; height: 120px; left: 5%; bottom: -10%;"></div>
+    <div class="bg-circle" style="width: 250px; height: 250px; right: 8%; top: 10%;"></div>
+
+    <div class="container text-center">
+        <h1 class="welcome-title fw-bold">🎓 College Club Hub</h1>
+        
+        <div class="row justify-content-center gap-5">
+            <div class="selection-card student-card text-white" onclick="window.location.href='student-login.html'">
+                <span class="icon-box">👨‍🎓</span>
+                <h2 class="fw-bold mb-3">Student</h2>
+                <p class="text-white-50 mb-4">Discover clubs and participate in exciting events.</p>
+                <button class="btn btn-primary btn-custom w-100 shadow">Enter Portal</button>
+            </div>
+
+            <div class="selection-card teacher-card text-white" onclick="window.location.href='teacher-login.html'">
+                <span class="icon-box">👨‍🏫</span>
+                <h2 class="fw-bold mb-3">Teacher</h2>
+                <p class="text-white-50 mb-4">Create new clubs and manage your campus activities.</p>
+                <button class="btn btn-danger btn-custom w-100 shadow">Enter Portal</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

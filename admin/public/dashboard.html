@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CollegeHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; color: white; min-height: 100vh; margin: 0; overflow-x: hidden; }
+        .bg-animated { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/back.jpg'); background-size: cover; background-position: center; z-index: -2; animation: backgroundZoom 12s infinite alternate ease-in-out; }
+        @keyframes backgroundZoom { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+        .navbar { background: rgba(0, 0, 0, 0.6) !important; backdrop-filter: blur(15px); border-bottom: 2px solid #ffd700; }
+        .stat-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 20px; padding: 25px; transition: 0.3s; text-align: center; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-10px); border-color: #ffd700; background: rgba(255, 215, 0, 0.1); }
+        .stat-icon { font-size: 2.5rem; color: #ffd700; margin-bottom: 10px; }
+        .stat-value { font-size: 2.2rem; font-weight: 700; color: #ffd700; }
+        .admin-table-container { background: rgba(15, 23, 42, 0.85) !important; backdrop-filter: blur(25px); border-radius: 30px; padding: 30px; border: 1px solid rgba(255, 215, 0, 0.3); margin-bottom: 40px; display: none; animation: fadeIn 0.5s ease-in-out; }
+        .table { color: white !important; background: transparent !important; border-collapse: separate; border-spacing: 0 12px; }
+        .table > :not(caption) > * > * { background-color: transparent !important; box-shadow: none !important; border: none !important; color: white !important; }
+        .table thead th { color: #ffd700 !important; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1.5px; border-bottom: 2px solid #ffd700 !important; padding-bottom: 15px; }
+        .table tbody tr { background: rgba(255, 255, 255, 0.05) !important; transition: 0.3s; border-radius: 15px; }
+        .table tbody tr td:first-child { border-radius: 15px 0 0 15px; border-left: 5px solid #ffd700 !important; }
+        .table tbody tr td:last-child { border-radius: 0 15px 15px 0; }
+        .desc-text { max-width: 450px; white-space: normal; line-height: 1.6; color: rgba(255, 255, 255, 0.85); font-size: 0.95rem; }
+        .btn-delete { color: #ff4d4d; background: transparent; border: none; font-size: 1.1rem; transition: 0.3s; }
+        .btn-delete:hover { color: #ff1a1a; transform: scale(1.2); }
+        .btn-edit { color: #ffd700; background: transparent; border: none; font-size: 1.1rem; transition: 0.3s; margin-right: 15px; }
+        .btn-edit:hover { color: #ffffff; transform: scale(1.2); }
+        .active-card { border-color: #ffd700 !important; background: rgba(255, 215, 0, 0.15) !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+        #clubSection { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="bg-animated"></div>
+    <nav class="navbar navbar-dark sticky-top">
+        <div class="container d-flex justify-content-between">
+            <a class="navbar-brand fw-bold fs-3"><i class="fas fa-user-shield me-2" style="color: #ffd700;"></i>AdminPanel</a>
+            <button class="btn btn-outline-warning btn-sm rounded-pill px-3" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2 class="mb-5 fw-bold text-center">System Overview</h2>
+        <div class="row g-4 mb-4 text-center">
+            <div class="col-md-3" onclick="toggleSection('clubSection', this)"><div class="stat-card active-card"><i class="fas fa-university stat-icon"></i><div class="stat-value" id="totalClubs">0</div><div>Total Clubs</div></div></div>
+            <div class="col-md-3" onclick="toggleSection('studentSection', this)"><div class="stat-card"><i class="fas fa-users stat-icon"></i><div class="stat-value" id="totalStudents">0</div><div>Total Students</div></div></div>
+            <div class="col-md-3" onclick="toggleSection('teacherSection', this)"><div class="stat-card"><i class="fas fa-chalkboard-teacher stat-icon"></i><div class="stat-value" id="totalTeachers">0</div><div>Total Teachers</div></div></div>
+            <div class="col-md-3" onclick="toggleSection('eventSection', this)"><div class="stat-card"><i class="fas fa-calendar-check stat-icon"></i><div class="stat-value" id="totalEvents">0</div><div>Live Events</div></div></div>
+        </div>
+        <div class="row mb-5 justify-content-center g-4">
+            <div class="col-md-4" onclick="toggleSection('participantSection', this)"><div class="stat-card"><i class="fas fa-user-check stat-icon"></i><div class="stat-value" id="totalParticipants">0</div><div>Event Participation</div></div></div>
+            <div class="col-md-4" onclick="toggleSection('clubRegSection', this)"><div class="stat-card"><i class="fas fa-file-signature stat-icon"></i><div class="stat-value" id="totalClubReg">0</div><div>Club Registrations</div></div></div>
+        </div>
+
+        <div id="clubSection" class="admin-table-container"><h4 class="mb-4 text-warning fw-bold">Club Management</h4><table class="table"><thead><tr><th>Club Name</th><th>Description</th><th>Members</th><th>Action</th></tr></thead><tbody id="adminClubsList"></tbody></table></div>
+        <div id="studentSection" class="admin-table-container"><h4 class="mb-4 text-warning fw-bold">Student Directory</h4><table class="table"><thead><tr><th>Email</th><th>Enrollment</th><th>Branch/Sem</th><th>Action</th></tr></thead><tbody id="adminStudentsList"></tbody></table></div>
+        <div id="teacherSection" class="admin-table-container"><h4 class="mb-4 text-warning fw-bold">Teacher Directory</h4><table class="table"><thead><tr><th>Email</th><th>Department</th><th>Professor ID</th><th>Action</th></tr></thead><tbody id="adminTeachersList"></tbody></table></div>
+        <div id="eventSection" class="admin-table-container"><h4 class="mb-4 text-warning fw-bold">Live Events</h4><table class="table"><thead><tr><th>Title</th><th>Club</th><th>Date</th><th>Action</th></tr></thead><tbody id="adminEventsList"></tbody></table></div>
+        <div id="participantSection" class="admin-table-container"><h4 class="mb-4 text-warning fw-bold">Event Participants</h4><table class="table"><thead><tr><th>Name</th><th>Enrollment</th><th>Branch/Sem</th><th>Event</th><th>Action</th></tr></thead><tbody id="adminParticipantList"></tbody></table></div>
+        <div id="clubRegSection" class="admin-table-container"><h4 class="mb-4 text-warning fw-bold">Club Registrations</h4><table class="table"><thead><tr><th>Name</th><th>Enrollment</th><th>Branch/Sem</th><th>Club</th><th>Action</th></tr></thead><tbody id="adminClubRegList"></tbody></table></div>
+    </div>
+
+    <div class="modal fade" id="editClubModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background: #1e293b; border: 1px solid #ffd700; color: white;"><div class="modal-header border-0"><h5>Edit Club</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editClubId"><div class="mb-3"><label class="small text-warning">Name</label><input type="text" id="editClubName" class="form-control bg-dark text-white border-secondary"></div><div class="mb-3"><label class="small text-warning">Description</label><textarea id="editClubDesc" class="form-control bg-dark text-white border-secondary" rows="3"></textarea></div></div><div class="modal-footer border-0"><button class="btn btn-warning w-100 fw-bold" onclick="updateClub()">Update Club</button></div></div></div></div>
+    
+    <div class="modal fade" id="editStudentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background: #1e293b; border: 1px solid #ffd700; color: white;"><div class="modal-header border-0"><h5>Edit Student</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editStudId"><div class="mb-3"><label class="small text-warning">Enrollment No</label><input type="text" id="editStudEnroll" class="form-control bg-dark text-white border-secondary"></div><div class="mb-3"><label class="small text-warning">Branch</label><input type="text" id="editStudBranch" class="form-control bg-dark text-white border-secondary"></div><div class="mb-3"><label class="small text-warning">Semester</label><input type="text" id="editStudSem" class="form-control bg-dark text-white border-secondary"></div></div><div class="modal-footer border-0"><button class="btn btn-warning w-100 fw-bold" onclick="updateStudent()">Update Student</button></div></div></div></div>
+
+    <div class="modal fade" id="editTeacherModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background: #1e293b; border: 1px solid #ffd700; color: white;"><div class="modal-header border-0"><h5>Edit Teacher</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editTeachId"><div class="mb-3"><label class="small text-warning">Department</label><input type="text" id="editTeachDept" class="form-control bg-dark text-white border-secondary"></div><div class="mb-3"><label class="small text-warning">Professor ID</label><input type="text" id="editTeachEmpId" class="form-control bg-dark text-white border-secondary"></div></div><div class="modal-footer border-0"><button class="btn btn-warning w-100 fw-bold" onclick="updateTeacher()">Update Teacher</button></div></div></div></div>
+
+    <div class="modal fade" id="editEventModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background: #1e293b; border: 1px solid #ffd700; color: white;"><div class="modal-header border-0"><h5>Edit Event</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editEvtId"><div class="mb-3"><label class="small text-warning">Event Title (Read-only)</label><input type="text" id="editEvtTitle" class="form-control bg-dark text-white border-secondary opacity-75" readonly></div><div class="mb-3"><label class="small text-warning">Club (Read-only)</label><input type="text" id="editEvtClubName" class="form-control bg-dark text-white border-secondary opacity-75" readonly></div><div class="mb-3"><label class="small text-warning">Event Date</label><input type="date" id="editEvtDate" class="form-control bg-dark text-white border-secondary"></div></div><div class="modal-footer border-0"><button class="btn btn-warning w-100 fw-bold" onclick="updateEvent()">Update Date</button></div></div></div></div>
+
+    <div class="modal fade" id="editPartModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background: #1e293b; border: 1px solid #ffd700; color: white;"><div class="modal-header border-0"><h5>Edit Participant</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editPartId"><div class="mb-3"><label class="small text-warning">Full Name</label><input type="text" id="editPartName" class="form-control bg-dark text-white border-secondary"></div><div class="mb-3"><label class="small text-warning">Enrollment</label><input type="text" id="editPartEnroll" class="form-control bg-dark text-white border-secondary"></div><div class="row"><div class="col-6"><label class="small text-warning">Branch</label><input type="text" id="editPartBranch" class="form-control bg-dark text-white border-secondary"></div><div class="col-6"><label class="small text-warning">Semester</label><input type="text" id="editPartSem" class="form-control bg-dark text-white border-secondary"></div></div></div><div class="modal-footer border-0"><button class="btn btn-warning w-100 fw-bold" onclick="updatePart()">Update Details</button></div></div></div></div>
+
+    <div class="modal fade" id="editRegModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="background: #1e293b; border: 1px solid #ffd700; color: white;"><div class="modal-header border-0"><h5>Edit Registration</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editRegId"><div class="mb-3"><label class="small text-warning">Name</label><input type="text" id="editRegName" class="form-control bg-dark text-white border-secondary"></div><div class="mb-3"><label class="small text-warning">Enrollment</label><input type="text" id="editRegEnroll" class="form-control bg-dark text-white border-secondary"></div><div class="row"><div class="col-6"><label class="small text-warning">Branch</label><input type="text" id="editRegBranch" class="form-control bg-dark text-white border-secondary"></div><div class="col-6"><label class="small text-warning">Semester</label><input type="text" id="editRegSem" class="form-control bg-dark text-white border-secondary"></div></div></div><div class="modal-footer border-0"><button class="btn btn-warning w-100 fw-bold" onclick="updateReg()">Update Details</button></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSection(id, el) { document.querySelectorAll('.admin-table-container').forEach(e=>e.style.display='none'); document.querySelectorAll('.stat-card').forEach(c=>c.classList.remove('active-card')); document.getElementById(id).style.display='block'; el.querySelector('.stat-card').classList.add('active-card'); }
+        
+        async function loadAdminData() {
+            try {
+                const res = await fetch('/api/admin/data'); const data = await res.json();
+                document.getElementById('totalClubs').innerText = data.clubs.length;
+                document.getElementById('totalTeachers').innerText = data.teacherCount;
+                document.getElementById('totalEvents').innerText = data.eventCount;
+
+                const cl = document.getElementById('adminClubsList'); cl.innerHTML = '';
+                data.clubs.forEach(c => cl.innerHTML += `<tr><td>${c.name}</td><td><div class="desc-text">${c.description}</div></td><td><span class="badge bg-warning text-dark">${c.members?.length || 0}</span></td><td><button class="btn-edit" onclick="openEditModal('${c._id}','${encodeURIComponent(c.name)}','${encodeURIComponent(c.description)}')"><i class="fas fa-pencil-alt"></i></button><button class="btn-delete" onclick="handleDelete('/api/admin/delete/${c._id}')"><i class="fas fa-trash-can"></i></button></td></tr>`);
+
+                const sl = document.getElementById('adminStudentsList'); sl.innerHTML = '';
+                const sRes = await fetch('/api/admin/students'); const students = await sRes.json();
+                document.getElementById('totalStudents').innerText = students.length;
+                students.forEach(s => sl.innerHTML += `<tr><td>${s.email}</td><td>${s.enrollmentNo}</td><td>${s.branch} - ${s.semester}</td><td><button class="btn-edit" onclick="openStudentModal('${s._id}','${s.enrollmentNo}','${s.branch}','${s.semester}')"><i class="fas fa-pencil-alt"></i></button><button class="btn-delete" onclick="handleDelete('/api/admin/delete-student/${s._id}')"><i class="fas fa-trash-can"></i></button></td></tr>`);
+
+                const tl = document.getElementById('adminTeachersList'); tl.innerHTML = '';
+                const tRes = await fetch('/api/admin/teachers'); const teachers = await tRes.json();
+                teachers.forEach(t => tl.innerHTML += `<tr><td>${t.email}</td><td>${t.department}</td><td>${t.employeeId}</td><td><button class="btn-edit" onclick="openTeacherModal('${t._id}','${t.department}','${t.employeeId}')"><i class="fas fa-pencil-alt"></i></button><button class="btn-delete" onclick="handleDelete('/api/admin/delete-teacher/${t._id}')"><i class="fas fa-trash-can"></i></button></td></tr>`);
+
+                const el = document.getElementById('adminEventsList'); el.innerHTML = '';
+                const eRes = await fetch('/api/admin/events-data'); const events = await eRes.json();
+                events.forEach(e => el.innerHTML += `<tr><td>${e.title}</td><td>${e.clubName}</td><td>${e.date}</td><td><button class="btn-edit" onclick="openEventModal('${e._id}','${encodeURIComponent(e.title)}','${e.clubName}','${e.date}')"><i class="fas fa-pencil-alt"></i></button><button class="btn-delete" onclick="handleDelete('/api/admin/delete-event/${e._id}')"><i class="fas fa-trash-can"></i></button></td></tr>`);
+
+                const pl = document.getElementById('adminParticipantList'); pl.innerHTML = '';
+                const pRes = await fetch('/api/admin/event-participants'); const participants = await pRes.json();
+                document.getElementById('totalParticipants').innerText = participants.length;
+                participants.forEach(p => {
+                    const bSem = p.branchSem.split(' - ');
+                    pl.innerHTML += `<tr><td>${p.userName}</td><td>${p.enrollment}</td><td>${p.branchSem}</td><td>${p.eventName}</td><td><button class="btn-edit" onclick="openPartModal('${p._id}','${encodeURIComponent(p.userName)}','${p.enrollment}','${bSem[0]}','${bSem[1]}')"><i class="fas fa-pencil-alt"></i></button><button class="btn-delete" onclick="handleDelete('/api/admin/delete-participant/${p._id}')"><i class="fas fa-trash-can"></i></button></td></tr>`;
+                });
+
+                const rl = document.getElementById('adminClubRegList'); rl.innerHTML = '';
+                const rRes = await fetch('/api/admin/club-registrations'); const regs = await rRes.json();
+                document.getElementById('totalClubReg').innerText = regs.length;
+                regs.forEach(r => {
+                    const bSem = r.branchSem.split(' - ');
+                    rl.innerHTML += `<tr><td>${r.name}</td><td>${r.enrollmentNo}</td><td>${r.branchSem}</td><td>${r.clubName}</td><td><button class="btn-edit" onclick="openRegModal('${r._id}','${encodeURIComponent(r.name)}','${r.enrollmentNo}','${bSem[0]}','${bSem[1]}')"><i class="fas fa-pencil-alt"></i></button><button class="btn-delete" onclick="handleDelete('/api/admin/delete-club-reg/${r._id}')"><i class="fas fa-trash-can"></i></button></td></tr>`;
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        function openEditModal(id,n,d) { document.getElementById('editClubId').value=id; document.getElementById('editClubName').value=decodeURIComponent(n); document.getElementById('editClubDesc').value=decodeURIComponent(d); new bootstrap.Modal(document.getElementById('editClubModal')).show(); }
+        function openStudentModal(id,e,b,s) { document.getElementById('editStudId').value=id; document.getElementById('editStudEnroll').value=e; document.getElementById('editStudBranch').value=b; document.getElementById('editStudSem').value=s; new bootstrap.Modal(document.getElementById('editStudentModal')).show(); }
+        function openTeacherModal(id,d,em) { document.getElementById('editTeachId').value=id; document.getElementById('editTeachDept').value=d; document.getElementById('editTeachEmpId').value=em; new bootstrap.Modal(document.getElementById('editTeacherModal')).show(); }
+        function openEventModal(id,t,club,date) { document.getElementById('editEvtId').value=id; document.getElementById('editEvtTitle').value=decodeURIComponent(t); document.getElementById('editEvtClubName').value=decodeURIComponent(club); if(date) { let dParts = date.split('/'); let d = new Date(dParts[2], dParts[1]-1, dParts[0]); document.getElementById('editEvtDate').value = d.toISOString().split('T')[0]; } new bootstrap.Modal(document.getElementById('editEventModal')).show(); }
+        function openPartModal(id,n,e,b,s) { document.getElementById('editPartId').value=id; document.getElementById('editPartName').value=decodeURIComponent(n); document.getElementById('editPartEnroll').value=e; document.getElementById('editPartBranch').value=b; document.getElementById('editPartSem').value=s; new bootstrap.Modal(document.getElementById('editPartModal')).show(); }
+        function openRegModal(id,n,e,b,s) { document.getElementById('editRegId').value=id; document.getElementById('editRegName').value=decodeURIComponent(n); document.getElementById('editRegEnroll').value=e; document.getElementById('editRegBranch').value=b; document.getElementById('editRegSem').value=s; new bootstrap.Modal(document.getElementById('editRegModal')).show(); }
+
+        async function updateClub() { await fetch(`/api/admin/update-club/${document.getElementById('editClubId').value}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:document.getElementById('editClubName').value, description:document.getElementById('editClubDesc').value})}); location.reload(); }
+        async function updateStudent() { await fetch(`/api/admin/update-student/${document.getElementById('editStudId').value}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({enrollmentNo:document.getElementById('editStudEnroll').value, branch:document.getElementById('editStudBranch').value, semester:document.getElementById('editStudSem').value})}); location.reload(); }
+        async function updateTeacher() { await fetch(`/api/admin/update-teacher/${document.getElementById('editTeachId').value}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({department:document.getElementById('editTeachDept').value, employeeId:document.getElementById('editTeachEmpId').value})}); location.reload(); }
+        async function updateEvent() { await fetch(`/api/admin/update-event/${document.getElementById('editEvtId').value}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({date:document.getElementById('editEvtDate').value})}); location.reload(); }
+        async function updatePart() { await fetch(`/api/admin/update-participant/${document.getElementById('editPartId').value}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:document.getElementById('editPartName').value, enrollment:document.getElementById('editPartEnroll').value, branch:document.getElementById('editPartBranch').value, semester:document.getElementById('editPartSem').value})}); location.reload(); }
+        async function updateReg() { await fetch(`/api/admin/update-club-reg/${document.getElementById('editRegId').value}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:document.getElementById('editRegName').value, enrollmentNo:document.getElementById('editRegEnroll').value, branch:document.getElementById('editRegBranch').value, semester:document.getElementById('editRegSem').value})}); location.reload(); }
+
+        async function handleDelete(url) { if(confirm("Are you sure?")) { const res = await fetch(url, {method:'DELETE'}); if(res.ok) loadAdminData(); } }
+        window.onload = loadAdminData;
+        function logout() { window.location.href='/logout'; }
+    </script>
+</body>
+</html>

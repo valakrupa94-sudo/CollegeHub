@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CollegeHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- PDF Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            color: #ffffff; 
+            min-height: 100vh;
+            background: #0b091a; 
+            overflow-x: hidden;
+        }
+
+        /* ૧. animated background */
+        .bg-animated {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/back.jpg'); 
+            background-size: cover; background-position: center; z-index: -2;
+            animation: kenBurns 15s infinite alternate ease-in-out;
+        }
+        @keyframes kenBurns { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+
+        .orb {
+            position: absolute; width: 400px; height: 400px;
+            background: linear-gradient(135deg, rgba(0, 198, 255, 0.2), rgba(118, 75, 162, 0.2));
+            filter: blur(100px); border-radius: 50%; z-index: -1;
+            animation: floatOrb 10s infinite alternate ease-in-out;
+        }
+        @keyframes floatOrb { from { transform: translate(-10%, -10%); } to { transform: translate(15%, 15%); } }
+
+        /* ૨. ગ્લાસ નેવબાર */
+        .navbar {
+            background: rgba(0, 0, 0, 0.5) !important;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 0;
+        }
+
+        .hero-section { padding: 60px 0; text-align: center; }
+
+        .search-container {
+            max-width: 500px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        .search-bar {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 50px;
+            padding: 12px 20px 12px 45px;
+            color: white !important;
+        }
+        .search-icon {
+            position: absolute; left: 20px; top: 50%;
+            transform: translateY(-50%); z-index: 5;
+            display: flex; align-items: center;
+        }
+
+        .joined-club-mini-card {
+            background: rgba(0, 229, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 20px;
+            padding: 15px 25px;
+            min-width: 220px;
+            max-width: 250px;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .joined-club-mini-card:active, 
+        .joined-club-mini-card:hover {
+            background: rgba(0, 229, 255, 0.25);
+            border-color: #00e5ff;
+            transform: scale(1.02);
+            box-shadow: 0 8px 32px rgba(0, 229, 255, 0.3);
+            z-index: 10;
+        }
+
+        /* Notification Dropdown Style */
+        #notifBox {
+            right: 20px; top: 80px; width: 300px;
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid #00e5ff;
+            border-radius: 20px;
+            z-index: 1050;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+        .notif-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; cursor: pointer; }
+
+        #joinedClubsList, #registeredEventsList {
+            display: flex; gap: 20px; overflow-x: auto;
+            padding: 15px 10px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+        }
+
+        .club-card { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; transition: all 0.4s ease; height: 100%; color: #ffffff !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
+        .club-card:hover { transform: translateY(-10px); border-color: #00e5ff; }
+        .event-item { font-size: 0.88em; border-left: 4px solid #00e5ff; margin-bottom: 12px; background: rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-content { background: rgba(20, 20, 35, 0.98); backdrop-filter: blur(25px); border: 1px solid #00e5ff; border-radius: 25px; color: #ffffff !important; }
+        .btn-glass { background: linear-gradient(45deg, #0d6efd, #00c6ff); border: none; color: white; border-radius: 12px; padding: 10px 20px; font-weight: 600; }
+        .text-info { color: #00e5ff !important; font-weight: 600; }
+        #showAllBtn { background: #00e5ff !important; color: #000 !important; font-weight: 700; border: none; padding: 8px 25px; border-radius: 50px; transition: 0.3s; box-shadow: 0 0 15px rgba(0, 229, 255, 0.5); text-transform: uppercase; font-size: 0.85rem; }
+        .custom-scroll::-webkit-scrollbar { height: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.5); border-radius: 10px; }
+        
+        /* Navu badge styling only number */
+        .badge-count { cursor: pointer; background: #00e5ff !important; color: #000 !important; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animated"></div>
+    <div class="orb"></div>
+
+    <nav class="navbar navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3"><i class="fas fa-university me-2 text-info"></i>College<span class="text-info">Hub</span></a>
+            <div class="d-flex align-items-center gap-4">
+                <div class="position-relative cursor-pointer" onclick="toggleNotif()">
+                    <i class="fas fa-bell fs-4 text-info"></i>
+                    <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.6rem;">0</span>
+                </div>
+                <span id="userRoleBadge" class="badge rounded-pill px-3 py-2">Loading...</span>
+                <button class="btn btn-outline-light btn-sm rounded-pill px-3" onclick="logout()"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="notifBox" class="position-fixed p-3 d-none">
+        <h6 class="text-info fw-bold border-bottom border-secondary pb-2">Notifications</h6>
+        <div id="notifList" class="custom-scroll" style="max-height: 300px; overflow-y: auto;">
+            <p class="text-center text-white-50 py-3">No new notifications</p>
+        </div>
+    </div>
+
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">Explore <span class="text-info">Clubs</span> & Events</h1>
+            <p class="lead mb-4" style="color: #e0e0e0;">Connect, learn, and grow with your college community.</p>
+            <div class="search-container">
+                <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" cy="21" r="8"></line></svg></span>
+                <input type="text" id="clubSearch" class="form-control search-bar" placeholder="Search clubs..." onkeyup="filterClubs()">
+            </div>
+            <button class="btn btn-glass btn-lg shadow teacher-only" data-bs-toggle="modal" data-bs-target="#addClubModal"><i class="fas fa-plus-circle me-2"></i>Create New Club</button>
+        </div>
+    </div>
+
+    <div id="joinedClubsContainer" class="container mb-4 d-none">
+        <div class="row g-4">
+            <div id="joinedClubsSection" class="col-lg-6 d-none">
+                <h4 class="fw-bold mb-3" style="color: #00e5ff;"><i class="fas fa-check-circle me-2"></i>My Joined Clubs</h4>
+                <div id="joinedClubsList"></div>
+            </div>
+            <div id="registeredEventsSection" class="col-lg-6 d-none">
+                <h4 class="fw-bold mb-3" style="color: #00e5ff;"><i class="fas fa-calendar-check me-2"></i>My Registered Events</h4>
+                <div id="registeredEventsList"></div>
+            </div>
+        </div>
+        <div class="text-center mt-4"><button id="showAllBtn" class="btn d-none" onclick="resetClubFilter()">Show All</button></div>
+        <hr class="opacity-25 mt-4">
+    </div>
+
+    <div class="container pb-5">
+        <div class="row g-4" id="clubsList">
+            <div class="text-center mt-5"><div class="spinner-border text-info"></div><p class="mt-2">Fetching Data...</p></div>
+        </div>
+    </div>
+
+    <!-- Modal Form (SUDHARYU: Download Buttons) -->
+    <div class="modal fade" id="viewMembersModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5>Club Members</h5>
+                    <button class="btn btn-sm btn-outline-info ms-auto me-2" onclick="downloadPDF('membersTableBody', 'Club_Members_List')"><i class="fas fa-file-pdf me-1"></i> PDF</button>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="table-responsive p-3">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Name</th><th>Enrollment</th><th>Branch</th><th>Sem</th></tr></thead>
+                            <tbody id="membersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="viewParticipantsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5>Event Participants</h5>
+                    <button class="btn btn-sm btn-outline-info ms-auto me-2" onclick="downloadPDF('participantsTableBody', 'Event_Participants_List')"><i class="fas fa-file-pdf me-1"></i> PDF</button>
+                    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="table-responsive p-3">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Name</th><th>Enrollment</th><th>Branch</th><th>Sem</th></tr></thead>
+                            <tbody id="participantsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="memberModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg"><div class="modal-header border-0"><h5>Join Club Form</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="memberClubId"><div class="mb-3"><label class="small">Full Name</label><input type="text" id="memName" class="form-control" placeholder="Enter Full Name"></div><div class="mb-3"><label class="small">Enrollment No</label><input type="text" id="memEnroll" class="form-control" placeholder="Enter Enrollment No"></div><div class="row"><div class="col-6 mb-3"><label class="small">Branch</label><input type="text" id="memBranch" class="form-control" placeholder="EnterBranch"></div><div class="col-6 mb-3"><label class="small">Semester</label><select id="memSem" class="form-select"><option value="1st">1st Sem</option><option value="2nd">2nd Sem</option><option value="3rd">3rd Sem</option><option value="4th">4th Sem</option><option value="5th">5th Sem</option><option value="6th">6th Sem</option></select></div></div></div><div class="modal-footer border-0"><button class="btn btn-glass w-100" onclick="saveMember()">Confirm Joining</button></div></div></div></div>
+    <div class="modal fade" id="addClubModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-0"><h5>New Club</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="small">Club Name</label><input type="text" id="clubName" class="form-control" placeholder="Enter Club Name"></div><div class="mb-3"><label class="small">Description</label><textarea id="clubDesc" class="form-control" rows="3" placeholder="Enter Description"></textarea></div></div><div class="modal-footer border-0"><button class="btn btn-glass w-100" onclick="addClub()">Save Club</button></div></div></div></div>
+    <div class="modal fade" id="addEventModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-0"><h5>Add Event</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="eventClubId"><div class="mb-3"><label class="small">Event Name</label><input type="text" id="eventName" class="form-control" placeholder="Event Name"></div><div class="mb-3"><label class="small">Date</label><input type="date" id="eventDate" class="form-control"></div></div><div class="modal-footer border-0"><button class="btn btn-glass w-100" onclick="saveEvent()">Save Event</button></div></div></div></div>
+    <div class="modal fade" id="participateModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-0"><h5>Event Participation</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="partEventId"><div class="mb-3"><label class="small">Event</label><input type="text" id="partEventName" class="form-control" readonly></div><div class="mb-3"><label class="small">Full Name</label><input type="text" id="studentName" class="form-control" placeholder="Enter Name"></div><div class="mb-3"><label class="small">Enrollment No</label><input type="text" id="studentEnroll" class="form-control" placeholder="Enter Enrollment No"></div><div class="row"><div class="col-6"><label class="small">Branch</label><input type="text" id="studentBranchInput" class="form-control" placeholder="Enter Branch"></div><div class="col-6"><label class="small">Sem</label><select id="studentSem" class="form-select"><option value="1st">1st</option><option value="2nd">2nd</option><option value="3rd">3rd</option><option value="4th">4th</option><option value="5th">5th</option><option value="6th">6th</option></select></div></div></div><div class="modal-footer border-0"><button class="btn btn-glass w-100" onclick="submitParticipation()">Register Now</button></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentUserRole = '';
+        let currentUserEnrollment = '';
+
+        function toggleNotif() { document.getElementById('notifBox').classList.toggle('d-none'); }
+
+        async function fetchNotifications() {
+            try {
+                const res = await fetch('/api/notifications');
+                const data = await res.json();
+                const badge = document.getElementById('notifBadge');
+                const list = document.getElementById('notifList');
+                if(data.length > 0) {
+                    badge.innerText = data.length; badge.classList.remove('d-none');
+                    list.innerHTML = data.map(n => `<div class="notif-item" onclick="markAsRead('${n._id}')"><b>${n.message}</b><br><small class="text-white-50">${new Date(n.createdAt).toLocaleString()}</small></div>`).join('');
+                } else {
+                    badge.classList.add('d-none');
+                    list.innerHTML = '<p class="text-center text-white-50 py-3">No new notifications</p>';
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function markAsRead(id) {
+            try { await fetch(`/api/notifications/${id}`, { method: 'PUT' }); fetchNotifications(); toggleNotif(); } catch (e) { console.error(e); }
+        }
+
+        function downloadPDF(tableId, fileName) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const rows = [];
+            const tableBody = document.getElementById(tableId);
+            if (!tableBody || tableBody.rows.length === 0) return;
+            for (let i = 0; i < tableBody.rows.length; i++) {
+                const cells = tableBody.rows[i].cells;
+                rows.push([cells[0].innerText, cells[1].innerText, cells[2].innerText, cells[3].innerText]);
+            }
+            doc.autoTable({ head: [["Name", "Enrollment", "Branch", "Sem"]], body: rows, startY: 30 });
+            doc.save(fileName + ".pdf");
+        }
+
+        function filterClubs() {
+            let input = document.getElementById('clubSearch').value.toLowerCase();
+            document.querySelectorAll('.club-card-wrapper').forEach(card => {
+                card.style.display = card.querySelector('h5').innerText.toLowerCase().includes(input) ? "" : "none";
+            });
+        }
+
+        function filterByJoinedClub(id) {
+            document.querySelectorAll('.club-card-wrapper').forEach(c => c.style.display = c.dataset.id === id ? "" : "none");
+            document.getElementById('showAllBtn').classList.remove('d-none');
+        }
+
+        function resetClubFilter() {
+            document.querySelectorAll('.club-card-wrapper').forEach(c => c.style.display = "");
+            document.getElementById('showAllBtn').classList.add('d-none');
+        }
+
+        (async function checkAuth() {
+            try {
+                const res = await fetch('/auth/check');
+                const data = await res.json();
+                if (!data.loggedIn) window.location.href = '/welcome.html';
+                else { currentUserRole = data.role; currentUserEnrollment = data.enrollmentNo || ''; updateUIBasedOnRole(); loadData(); fetchNotifications(); }
+            } catch (e) { window.location.href = '/welcome.html'; }
+        })();
+
+        function updateUIBasedOnRole() {
+            const badge = document.getElementById('userRoleBadge');
+            const teacherElements = document.querySelectorAll('.teacher-only');
+            if (currentUserRole === 'teacher') {
+                badge.innerHTML = 'Teacher Panel'; badge.className = "badge bg-danger px-3 py-2";
+                teacherElements.forEach(el => { el.classList.remove('teacher-only'); el.style.display = 'inline-block'; });
+            } else {
+                badge.innerHTML = 'Student Panel'; badge.className = "badge bg-info text-dark px-3 py-2";
+                teacherElements.forEach(el => el.style.display = 'none');
+            }
+        }
+
+        function participateInEvent(id, name) { document.getElementById('partEventId').value = id; document.getElementById('partEventName').value = name; new bootstrap.Modal(document.getElementById('participateModal')).show(); }
+
+        async function loadData() {
+            try {
+                const [clubRes, eventRes] = await Promise.all([fetch('/api'), fetch('/api/events')]);
+                const clubs = await clubRes.json();
+                const events = await eventRes.json();
+                const listDiv = document.getElementById('clubsList');
+                const joinedList = document.getElementById('joinedClubsList');
+                const registeredList = document.getElementById('registeredEventsList');
+                
+                listDiv.innerHTML = ''; joinedList.innerHTML = ''; registeredList.innerHTML = '';
+                let joinedCount = 0; let regEventCount = 0;
+
+                clubs.forEach(club => {
+                    const myEvents = events.filter(e => e.clubId === club._id);
+                    const membersCount = club.members ? club.members.length : 0;
+                    const isMember = (currentUserRole === 'student' && club.members) ? club.members.some(m => String(m.enrollmentNo) === String(currentUserEnrollment)) : false;
+
+                    if(isMember && currentUserRole === 'student') {
+                        joinedCount++;
+                        joinedList.innerHTML += `<div class="joined-club-mini-card" onclick="filterByJoinedClub('${club._id}')"><h6 class="text-info fw-bold mb-0">${club.name}</h6><small class="text-white opacity-75">Member</small></div>`;
+                    }
+
+                    let eventsHtml = '';
+                    myEvents.forEach(e => { 
+                        const isRegistered = e.participants?.some(p => String(p.enrollment) === String(currentUserEnrollment));
+                        const partCount = e.participants ? e.participants.length : 0;
+                        if (isRegistered && currentUserRole === 'student') {
+                            regEventCount++;
+                            registeredList.innerHTML += `<div class="joined-club-mini-card"><h6 class="text-info fw-bold mb-0">${e.name}</h6><small class="text-white opacity-75">${new Date(e.date).toLocaleDateString()}</small></div>`;
+                        }
+                        let btn = (currentUserRole === 'student') ? (isRegistered ? `<span class="badge bg-success">Registered</span>` : `<button class="btn btn-sm btn-outline-info" onclick="participateInEvent('${e._id}', '${e.name}')">+ Join</button>`) : '';
+                        let countDisplay = (currentUserRole === 'teacher') ? `<span class="badge badge-count ms-2" onclick="viewParticipants('${encodeURIComponent(JSON.stringify(e.participants || []))}')">${partCount}</span>` : `<span class="badge bg-secondary ms-2">${partCount}</span>`;
+                        eventsHtml += `<div class="event-item"><div><b>${e.name}</b> ${countDisplay}<br><small>${new Date(e.date).toLocaleDateString()}</small></div>${btn}</div>`; 
+                    });
+
+                    listDiv.innerHTML += `<div class="col-md-6 col-lg-4 club-card-wrapper" data-id="${club._id}"><div class="card club-card p-3"><div class="d-flex justify-content-between"><h5 class="fw-bold text-info">${club.name}</h5><span class="badge badge-count" onclick="${currentUserRole==='teacher' ? `viewMembers('${encodeURIComponent(JSON.stringify(club.members || []))}')` : ''}">${membersCount}</span></div><p class="opacity-75 small">${club.description}</p>${eventsHtml}<div class="mt-3">${currentUserRole === 'teacher' ? `<button class="btn btn-glass btn-sm w-100" onclick="openEventModal('${club._id}')">Add Event</button>` : (isMember ? `<button class="btn btn-success btn-sm w-100 disabled">Joined</button>` : `<button class="btn btn-glass btn-sm w-100" onclick="openMemberModal('${club._id}')">Join Club</button>`)}</div></div></div>`;
+                });
+
+                if((joinedCount > 0 || regEventCount > 0) && currentUserRole === 'student') {
+                    document.getElementById('joinedClubsContainer').classList.remove('d-none');
+                    if(joinedCount > 0) document.getElementById('joinedClubsSection').classList.remove('d-none');
+                    if(regEventCount > 0) document.getElementById('registeredEventsSection').classList.remove('d-none');
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function viewMembers(data) {
+            const members = JSON.parse(decodeURIComponent(data));
+            const body = document.getElementById('membersTableBody');
+            body.innerHTML = members.length ? members.map(m => `<tr><td>${m.name}</td><td>${m.enrollmentNo}</td><td>${m.branch || 'N/A'}</td><td>${m.semester || 'N/A'}</td></tr>`).join('') : '<tr><td colspan="4" class="text-center">No members</td></tr>';
+            new bootstrap.Modal(document.getElementById('viewMembersModal')).show();
+        }
+
+        function viewParticipants(data) {
+            const parts = JSON.parse(decodeURIComponent(data));
+            const body = document.getElementById('participantsTableBody');
+            body.innerHTML = parts.length ? parts.map(p => `<tr><td>${p.name}</td><td>${p.enrollment}</td><td>${p.branch || 'N/A'}</td><td>${p.semester || 'N/A'}</td></tr>`).join('') : '<tr><td colspan="4" class="text-center">No participants</td></tr>';
+            new bootstrap.Modal(document.getElementById('viewParticipantsModal')).show();
+        }
+
+        function openMemberModal(id) { document.getElementById('memberClubId').value = id; new bootstrap.Modal(document.getElementById('memberModal')).show(); }
+        function openEventModal(id) { document.getElementById('eventClubId').value = id; new bootstrap.Modal(document.getElementById('addEventModal')).show(); }
+
+        async function submitParticipation() {
+            const data = { eventId: document.getElementById('partEventId').value, name: document.getElementById('studentName').value, enrollment: document.getElementById('studentEnroll').value, branch: document.getElementById('studentBranchInput').value, semester: document.getElementById('studentSem').value };
+            await fetch('/api/events/participate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            location.reload();
+        }
+
+        async function saveEvent() {
+            const res = await fetch('/api/events/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clubId: document.getElementById('eventClubId').value, name: document.getElementById('eventName').value, date: document.getElementById('eventDate').value }) });
+            if(res.ok) location.reload();
+        }
+
+        async function saveMember() {
+            const data = { clubId: document.getElementById('memberClubId').value, name: document.getElementById('memName').value, enrollmentNo: document.getElementById('memEnroll').value, branch: document.getElementById('memBranch').value, semester: document.getElementById('memSem').value };
+            await fetch('/api/add-member', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            location.reload();
+        }
+
+        async function addClub() {
+            await fetch('/api/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('clubName').value, description: document.getElementById('clubDesc').value }) });
+            location.reload();
+        }
+
+        async function logout() { await fetch('/auth/logout', { method: 'POST' }); window.location.href = '/welcome.html'; }
+    </script>
+</body>
+</html>
